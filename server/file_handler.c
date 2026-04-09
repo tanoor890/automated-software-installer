@@ -26,13 +26,6 @@ int send_file(int sockfd, const char *filepath, progress_callback cb, void *user
         return -1;
     }
 
-    char size_header[64];
-    snprintf(size_header, sizeof(size_header), "%ld", file_size);
-    if (send(sockfd, size_header, strlen(size_header) + 1, 0) < 0) {
-        fclose(fp);
-        return -1;
-    }
-
     char buffer[BUFFER_SIZE];
     long total_sent = 0;
     size_t bytes_read;

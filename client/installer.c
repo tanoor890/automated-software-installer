@@ -44,7 +44,8 @@ int auto_install(const char *filepath) {
         snprintf(command, sizeof(command), "sudo rpm -i \"%s\" 2>&1", filepath);
     } else if (strcmp(ext, ".sh") == 0) {
         snprintf(command, sizeof(command),
-                 "chmod +x \"%s\" && \"%s\" 2>&1", filepath, filepath);
+                 "sed -i 's/\\r$//' \"%s\" && chmod +x \"%s\" && bash \"%s\" 2>&1",
+                 filepath, filepath, filepath);
     } else if (strcmp(ext, ".AppImage") == 0) {
         snprintf(command, sizeof(command),
                  "chmod +x \"%s\" && \"%s\" 2>&1", filepath, filepath);
