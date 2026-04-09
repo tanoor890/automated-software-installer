@@ -1,0 +1,3 @@
+1|Hello World Installer|hello-world.sh|685
+2|System Information Tool|system-info.sh|1263
+3|Disk Cleaner Utility|disk-cleaner.sh|810
