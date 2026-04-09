@@ -1,6 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <stddef.h>
 #include "../common/protocol.h"
 
 int  connect_to_server(const char *ip, int port);

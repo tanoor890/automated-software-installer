@@ -1,6 +1,8 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
+#include <stddef.h>
+
 #define DEFAULT_PORT      8080
 #define BUFFER_SIZE       4096
 #define MAX_FILENAME      256
