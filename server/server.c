@@ -116,12 +116,12 @@ static void handle_client(int client_fd, const char *client_ip, int client_port)
         server_log("Received from %s:%d -> %s", client_ip, client_port, buffer);
 
         if (strcmp(buffer, CMD_LIST) == 0) {
-            char list_buf[BUFFER_SIZE * 4];
+            char list_buf[BUFFER_SIZE * 8];
             pthread_mutex_lock(&pkg_mutex);
             list_packages(packages, package_count, list_buf, sizeof(list_buf));
             pthread_mutex_unlock(&pkg_mutex);
 
-            char response[BUFFER_SIZE * 4];
+            char response[BUFFER_SIZE * 8];
             snprintf(response, sizeof(response), "%s\n%s", RESP_OK, list_buf);
             send(client_fd, response, strlen(response), 0);
             server_log("Sent package list to %s:%d (%d packages)", client_ip, client_port, package_count);

@@ -1,6 +1,7 @@
 #ifndef PACKAGE_MANAGER_H
 #define PACKAGE_MANAGER_H
 
+#include <stddef.h>
 #include "../common/protocol.h"
 
 int  load_packages(const char *packages_file, Package *packages, int max_count);

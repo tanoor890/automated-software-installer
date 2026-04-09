@@ -409,9 +409,13 @@ static void build_server_gui(GtkApplication *app) {
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(log_view), GTK_WRAP_WORD_CHAR);
     gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(log_view), FALSE);
 
-    PangoFontDescription *font = pango_font_description_from_string("Monospace 9");
-    gtk_widget_override_font(log_view, font);
-    pango_font_description_free(font);
+    gtk_widget_set_name(log_view, "log_text");
+    GtkCssProvider *css = gtk_css_provider_new();
+    gtk_css_provider_load_from_data(css,
+        "#log_text { font-family: Monospace; font-size: 9pt; }", -1, NULL);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(log_view),
+        GTK_STYLE_PROVIDER(css), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    g_object_unref(css);
 
     GtkWidget *log_scroll = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(log_scroll),
