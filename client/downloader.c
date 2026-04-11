@@ -21,7 +21,6 @@ static int ensure_directory(const char *dir) {
 int receive_file(int sockfd, const char *save_path, long file_size,
                  progress_callback cb, void *user_data) {
 
-    /* Ensure downloads directory exists */
     ensure_directory(DOWNLOADS_DIR);
 
     FILE *fp = fopen(save_path, "wb");

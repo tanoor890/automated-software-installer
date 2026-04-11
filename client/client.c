@@ -50,13 +50,11 @@ int request_list(int sockfd, char *list_buf, size_t buf_size) {
         return -1;
     }
 
-    /* Check for OK response */
     if (strncmp(list_buf, RESP_OK, strlen(RESP_OK)) != 0) {
         log_message("Server error: %s", list_buf);
         return -1;
     }
 
-    /* Skip past "RESPONSE: OK\n" */
     char *data = strchr(list_buf, '\n');
     if (data) {
         memmove(list_buf, data + 1, strlen(data + 1) + 1);
@@ -115,7 +113,6 @@ int request_download(int sockfd, int package_id, const char *save_dir,
         return -1;
     }
 
-    /* Parse "RESPONSE: OK <size> <filename>" */
     long file_size = 0;
     char filename[MAX_FILENAME] = {0};
 
@@ -127,7 +124,6 @@ int request_download(int sockfd, int package_id, const char *save_dir,
     if (out_filename && fname_size > 0)
         strncpy(out_filename, filename, fname_size - 1);
 
-    /* Send acknowledgment to server */
     send(sockfd, "READY\n", 6, 0);
 
     char save_path[MAX_PATH_LEN];

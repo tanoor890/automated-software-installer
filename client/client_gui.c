@@ -15,13 +15,9 @@
 #define G_APPLICATION_DEFAULT_FLAGS G_APPLICATION_FLAGS_NONE
 #endif
 
-/* ── State ───────────────────────────────────────────────── */
-
 static int sockfd = -1;
 static int is_connected = 0;
 static int is_downloading = 0;
-
-/* ── GUI widgets ─────────────────────────────────────────── */
 
 static GtkWidget *window;
 static GtkWidget *ip_entry;
@@ -45,8 +41,6 @@ static GtkWidget *status_bar;
 
 static Package gui_packages[MAX_PACKAGES];
 static int gui_package_count = 0;
-
-/* ── Logging ─────────────────────────────────────────────── */
 
 typedef struct {
     char message[MAX_LINE_LEN];
@@ -87,8 +81,6 @@ static void gui_log(const char *fmt, ...) {
     g_idle_add(append_log_idle, msg);
 }
 
-/* ── Progress update ─────────────────────────────────────── */
-
 typedef struct {
     double fraction;
     char   text[128];
@@ -118,8 +110,6 @@ static void download_progress_cb(long received, long total, void *user_data) {
 
     g_idle_add(update_progress_idle, pd);
 }
-
-/* ── UI state helpers ────────────────────────────────────── */
 
 typedef struct {
     int connected;
@@ -159,8 +149,6 @@ static void update_ui_state(void) {
     g_idle_add(update_ui_state_idle, state);
 }
 
-/* ── Package list update ─────────────────────────────────── */
-
 typedef struct {
     Package packages[MAX_PACKAGES];
     int count;
@@ -187,8 +175,6 @@ static gboolean update_pkg_list_idle(gpointer data) {
     free(pld);
     return FALSE;
 }
-
-/* ── Connect thread ──────────────────────────────────────── */
 
 typedef struct {
     char ip[64];
@@ -228,8 +214,6 @@ static void on_connect_clicked(GtkWidget *widget, gpointer data) {
     pthread_detach(tid);
 }
 
-/* ── Disconnect ──────────────────────────────────────────── */
-
 static void on_disconnect_clicked(GtkWidget *widget, gpointer data) {
     (void)widget; (void)data;
 
@@ -244,8 +228,6 @@ static void on_disconnect_clicked(GtkWidget *widget, gpointer data) {
         gui_package_count = 0;
     }
 }
-
-/* ── Refresh packages thread ─────────────────────────────── */
 
 static void *refresh_thread(void *arg) {
     (void)arg;
@@ -279,8 +261,6 @@ static void on_refresh_clicked(GtkWidget *widget, gpointer data) {
     pthread_create(&tid, NULL, refresh_thread, NULL);
     pthread_detach(tid);
 }
-
-/* ── Download & install thread ───────────────────────────── */
 
 typedef struct {
     int package_id;
@@ -377,7 +357,6 @@ static void on_download_clicked(GtkWidget *widget, gpointer data) {
     is_downloading = 1;
     update_ui_state();
 
-    /* Reset progress bar */
     ProgressData *pd = malloc(sizeof(ProgressData));
     if (pd) {
         pd->fraction = 0.0;
@@ -390,8 +369,6 @@ static void on_download_clicked(GtkWidget *widget, gpointer data) {
     pthread_detach(tid);
 }
 
-/* ── Build GUI ───────────────────────────────────────────── */
-
 static void build_client_gui(GtkApplication *app) {
     window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), "Automated Software Installer — Client");
@@ -401,7 +378,6 @@ static void build_client_gui(GtkApplication *app) {
     gtk_container_set_border_width(GTK_CONTAINER(main_box), 10);
     gtk_container_add(GTK_CONTAINER(window), main_box);
 
-    /* ── Header ────────────────────────────────────────── */
     GtkWidget *header = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(header),
         "<span size='x-large' weight='bold'>Automated Software Installer</span>");
@@ -410,7 +386,6 @@ static void build_client_gui(GtkApplication *app) {
     gtk_box_pack_start(GTK_BOX(main_box),
         gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 2);
 
-    /* ── Connection frame ──────────────────────────────── */
     GtkWidget *conn_frame = gtk_frame_new("Server Connection");
     gtk_box_pack_start(GTK_BOX(main_box), conn_frame, FALSE, FALSE, 5);
 
@@ -442,7 +417,6 @@ static void build_client_gui(GtkApplication *app) {
     connection_status = gtk_label_new("Disconnected");
     gtk_box_pack_end(GTK_BOX(conn_box), connection_status, FALSE, FALSE, 10);
 
-    /* ── Package list frame ────────────────────────────── */
     GtkWidget *pkg_frame = gtk_frame_new("Available Software Packages");
     gtk_box_pack_start(GTK_BOX(main_box), pkg_frame, TRUE, TRUE, 5);
 
@@ -491,7 +465,6 @@ static void build_client_gui(GtkApplication *app) {
     g_signal_connect(download_button, "clicked", G_CALLBACK(on_download_clicked), NULL);
     gtk_box_pack_start(GTK_BOX(btn_box), download_button, FALSE, FALSE, 0);
 
-    /* ── Progress section ──────────────────────────────── */
     GtkWidget *prog_frame = gtk_frame_new("Download Progress");
     gtk_box_pack_start(GTK_BOX(main_box), prog_frame, FALSE, FALSE, 5);
 
@@ -507,7 +480,6 @@ static void build_client_gui(GtkApplication *app) {
     progress_label = gtk_label_new("");
     gtk_box_pack_start(GTK_BOX(prog_box), progress_label, FALSE, FALSE, 0);
 
-    /* ── Log area ──────────────────────────────────────── */
     GtkWidget *log_frame = gtk_frame_new("Activity Log");
     gtk_box_pack_start(GTK_BOX(main_box), log_frame, TRUE, TRUE, 5);
 
@@ -532,7 +504,6 @@ static void build_client_gui(GtkApplication *app) {
     gtk_container_add(GTK_CONTAINER(log_scroll), log_view);
     gtk_container_add(GTK_CONTAINER(log_frame), log_scroll);
 
-    /* ── Status bar ────────────────────────────────────── */
     status_bar = gtk_statusbar_new();
     gtk_statusbar_push(GTK_STATUSBAR(status_bar), 0,
                        "Automated Software Installer — CSE 324 OS Lab Project");

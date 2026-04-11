@@ -31,7 +31,6 @@ extern int  get_package_count(void);
 extern void server_reload_packages(void);
 extern void get_connected_clients_copy(ClientInfo *out, int *count);
 
-/* GUI widgets */
 static GtkWidget *window;
 static GtkWidget *port_entry;
 static GtkWidget *start_button;
@@ -44,8 +43,6 @@ static GtkWidget *client_tree;
 static GtkListStore *client_store;
 static GtkWidget *pkg_tree;
 static GtkListStore *pkg_store;
-
-/* ── Logging ─────────────────────────────────────────────── */
 
 typedef struct {
     char message[MAX_LINE_LEN];
@@ -85,8 +82,6 @@ static void gui_log_callback(const char *message, void *user_data) {
     }
 }
 
-/* ── Client tree update ──────────────────────────────────── */
-
 static gboolean update_client_tree_idle(gpointer data) {
     (void)data;
     gtk_list_store_clear(client_store);
@@ -114,8 +109,6 @@ static gboolean update_client_tree_idle(gpointer data) {
     return FALSE;
 }
 
-/* ── Status updates ──────────────────────────────────────── */
-
 static gboolean update_status_idle(gpointer data) {
     (void)data;
     if (is_server_running()) {
@@ -142,8 +135,6 @@ static void on_client_update(void) {
     g_idle_add(update_client_tree_idle, NULL);
 }
 
-/* ── Button handlers ─────────────────────────────────────── */
-
 static void on_start_clicked(GtkWidget *widget, gpointer data) {
     (void)widget; (void)data;
     const char *port_str = gtk_entry_get_text(GTK_ENTRY(port_entry));
@@ -160,8 +151,6 @@ static void on_stop_clicked(GtkWidget *widget, gpointer data) {
     stop_server();
     g_idle_add(update_status_idle, NULL);
 }
-
-/* ── Package list display ────────────────────────────────── */
 
 static void refresh_package_list(void) {
     gtk_list_store_clear(pkg_store);
@@ -189,8 +178,6 @@ static void on_refresh_packages(GtkWidget *widget, gpointer data) {
     server_reload_packages();
     refresh_package_list();
 }
-
-/* ── Add package dialog ──────────────────────────────────── */
 
 static void on_add_package(GtkWidget *widget, gpointer data) {
     (void)widget; (void)data;
@@ -262,8 +249,6 @@ static void on_add_package(GtkWidget *widget, gpointer data) {
     gtk_widget_destroy(dialog);
 }
 
-/* ── Build GUI ───────────────────────────────────────────── */
-
 static void build_server_gui(GtkApplication *app) {
     window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), "Automated Software Installation Server");
@@ -273,7 +258,6 @@ static void build_server_gui(GtkApplication *app) {
     gtk_container_set_border_width(GTK_CONTAINER(main_box), 10);
     gtk_container_add(GTK_CONTAINER(window), main_box);
 
-    /* ── Header ────────────────────────────────────────── */
     GtkWidget *header_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(header_label),
         "<span size='x-large' weight='bold'>Automated Software Installation Server</span>");
@@ -282,7 +266,6 @@ static void build_server_gui(GtkApplication *app) {
     GtkWidget *separator1 = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_start(GTK_BOX(main_box), separator1, FALSE, FALSE, 2);
 
-    /* ── Server Controls ───────────────────────────────── */
     GtkWidget *ctrl_frame = gtk_frame_new("Server Controls");
     gtk_box_pack_start(GTK_BOX(main_box), ctrl_frame, FALSE, FALSE, 5);
 
@@ -313,15 +296,12 @@ static void build_server_gui(GtkApplication *app) {
     client_count_label = gtk_label_new("Connected Clients: 0");
     gtk_box_pack_end(GTK_BOX(ctrl_box), client_count_label, FALSE, FALSE, 10);
 
-    /* ── Paned: Packages + Clients / Log ───────────────── */
     GtkWidget *paned = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
     gtk_paned_set_position(GTK_PANED(paned), 300);
     gtk_box_pack_start(GTK_BOX(main_box), paned, TRUE, TRUE, 0);
 
-    /* ── Top: Packages + Clients side by side ──────────── */
     GtkWidget *top_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 
-    /* Packages */
     GtkWidget *pkg_frame = gtk_frame_new("Available Packages");
     gtk_box_pack_start(GTK_BOX(top_box), pkg_frame, TRUE, TRUE, 0);
 
@@ -373,7 +353,6 @@ static void build_server_gui(GtkApplication *app) {
     g_signal_connect(refresh_pkg_btn, "clicked", G_CALLBACK(on_refresh_packages), NULL);
     gtk_box_pack_start(GTK_BOX(pkg_btn_box), refresh_pkg_btn, FALSE, FALSE, 0);
 
-    /* Clients panel */
     GtkWidget *client_frame = gtk_frame_new("Connected Clients");
     gtk_widget_set_size_request(client_frame, 280, -1);
     gtk_box_pack_start(GTK_BOX(top_box), client_frame, FALSE, FALSE, 0);
@@ -400,7 +379,6 @@ static void build_server_gui(GtkApplication *app) {
 
     gtk_paned_add1(GTK_PANED(paned), top_box);
 
-    /* ── Bottom: Log area ──────────────────────────────── */
     GtkWidget *log_frame = gtk_frame_new("Server Log");
 
     log_view = gtk_text_view_new();
@@ -425,17 +403,14 @@ static void build_server_gui(GtkApplication *app) {
 
     gtk_paned_add2(GTK_PANED(paned), log_frame);
 
-    /* ── Status bar ────────────────────────────────────── */
     GtkWidget *statusbar = gtk_statusbar_new();
     gtk_statusbar_push(GTK_STATUSBAR(statusbar), 0,
                        "Automated Software Installation Server — CSE 324 OS Lab Project");
     gtk_box_pack_end(GTK_BOX(main_box), statusbar, FALSE, FALSE, 0);
 
-    /* Set up callbacks */
     server_set_log_callback(gui_log_callback, NULL);
     server_set_client_update_callback(on_client_update);
 
-    /* Load initial package list */
     refresh_package_list();
 
     gtk_widget_show_all(window);
